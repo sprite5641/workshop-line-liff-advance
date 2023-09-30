@@ -14,10 +14,12 @@
   
 <script>
 import liff from "@line/liff";
+import axios from "axios"
 export default {
     data() {
         return {
-            menu: []
+            menu: [],
+            phoneNumber: ""
         }
     },
 
@@ -32,17 +34,25 @@ export default {
             await liff.ready.then(async () => {
                 if (!liff.isLoggedIn()) {
                     liff.login({ redirectUri: window.location })
-                } else {
-                    console.log("2");
-                    await this.getProfile()
                 }
             })
         },
-        async getProfile() {
-            console.log("getIDToken");
+        async submitForm() {
             const idToken = await liff.getIDToken();
-            console.log(idToken); // print raw idToken object
-        },
+            console.log("idToken", idToken);
+            console.log("phoneNumber", this.phoneNumber);
+
+            await axios({
+                method: 'post',
+                url: 'https://2a1a-202-183-226-2.ngrok-free.app/lab-line-thepnatee2/asia-northeast1/workshop-auth',
+                headers: {
+                    'Authorization' : idToken
+                },
+                data: {
+                    phoneNumber:  this.phoneNumber,
+                }
+            })
+        }
 
 
     },
