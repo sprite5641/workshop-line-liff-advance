@@ -1,7 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Register from './components/Register.vue';
+import Index from './components/Index.vue';
 
 const routes = [
+  {
+    path: '/',
+    name: 'Index',
+    component: Index,
+  },
   {
     path: '/Register',
     name: 'Register',

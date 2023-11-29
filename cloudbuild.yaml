@@ -1,0 +1,51 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      [
+        "-c",
+        "docker pull $_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME || exit 0",
+      ]
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "-t",
+        "$_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME",
+        "--cache-from",
+        "$_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME",
+        ".",
+      ]
+    id: Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - "$_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME"
+    id: Push
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      [
+        "run",
+        "deploy",
+        "$_SERVICE_NAME",
+        "--platform=$_PLATFORM",
+        "--allow-unauthenticated",
+        "--image=$_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME",
+        "--set-env-vars=",
+        "--region=$_DEPLOY_REGION",
+        "--quiet",
+      ]
+    id: Deploy
+    entrypoint: gcloud
+images:
+  - "$_GCR_HOSTNAME/$PROJECT_ID/$_SERVICE_NAME"
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _DEPLOY_REGION: asia-southeast1
+  _GCR_HOSTNAME: asia.gcr.io
+  _PLATFORM: managed
+  _SERVICE_NAME: line-liff
+tags:
+  - gcp-cloud-build-deploy-cloud-run
+  - gcp-cloud-build-deploy-cloud-run-managed
